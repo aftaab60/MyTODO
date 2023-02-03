@@ -1,3 +1,7 @@
+________________
 Topics to learn:
-Topic : Status : Link of details
-context: InProgress: NA
+----------------
+
+Topic : Status : Remark/Note
+--------------------------------
+context : InProgress : details/context.txt
