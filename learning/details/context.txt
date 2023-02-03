@@ -1,2 +1,3 @@
 Notes of context learning
 -------------------------
+- context blog gor simple google search example: https://go.dev/blog/context
