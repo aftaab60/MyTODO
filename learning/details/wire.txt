@@ -48,3 +48,80 @@ func initUserStore(info ConnectionInfo) (*UserStore, error) {
     }
     return userStore, nil
 }
+
+Wire.Struct:
+-----------
+func Struct(structType interface{}, fieldNames ...string) StructProvider
+Struct specifies that the given struct type will be provided by filling in the fields in the struct that have the names given.
+The first argument must be a pointer to the struct type. For a struct type Foo, Wire will use field-filling to provide both Foo and *Foo. The remaining arguments are field names to fill in. As a special case, if a single name "*" is given, then all of the fields in the struct will be filled in.
+For example: 1.
+type S struct {
+  MyFoo *Foo
+  MyBar *Bar
+}
+var Set = wire.NewSet(wire.Struct(new(S), "MyFoo")) -> inject only S.MyFoo
+var Set = wire.NewSet(wire.Struct(new(S), "*")) -> inject all fields
+
+2.
+var NewUserRepository = wire.NewSet(
+	wire.Struct(new(UserRepository), "*"),
+	wire.Struct(new(UserRepositoryQueryBuilder), "*"),
+	wire.Bind(new(IUserRepository), new(*UserRepository)),
+	wire.Bind(new(IUserRepositoryQueryBuilder), new(*UserRepositoryQueryBuilder)),
+)
+
+Passing function as wire provider:
+----------------------------------
+you can pass a function as a provider in a Wire set. The function can be used to provide an instance of a type that satisfies an interface, or it can be used to perform some computation or configuration when the Wire runtime is initialized.
+
+Here's an example of passing a function as a provider in a Wire set:
+
+scss
+Copy code
+func OpenConnection() *DB {
+	// implementation to open a database connection
+}
+
+var dbSet = wire.NewSet(
+	OpenConnection,
+	wire.Bind(new(db_manager.IDb), new(*db_manager.DB)),
+	wire.Bind(new(db_manager.IDbTxBeginner), new(*db_manager.DB)))
+    
+
+The function passed as a provider to the Wire set will be executed when an instance of the type it returns is needed to satisfy a dependency. In other words, when you request an instance of an interface or type that the function provides, the function will be executed.
+
+Here's an example:
+
+less
+Copy code
+var dbSet = wire.NewSet(
+	OpenConnection,
+	wire.Bind(new(db_manager.IDb), new(*db_manager.DB)),
+	wire.Bind(new(db_manager.IDbTxBeginner), new(*db_manager.DB)))
+
+var db db_manager.IDb
+err := dbSet.Get(context.Background(), &db)
+if err != nil {
+	// handle the error
+}
+
+f the function passed as a provider to the Wire set requires parameters, you can pass those parameters when calling the Get method of the Wire set.
+
+Here's an example:
+
+go
+Copy code
+func OpenConnection(host string, port int) *DB {
+	// implementation to open a database connection using host and port
+}
+
+var dbSet = wire.NewSet(
+	OpenConnection,
+	wire.Bind(new(db_manager.IDb), new(*db_manager.DB)),
+	wire.Bind(new(db_manager.IDbTxBeginner), new(*db_manager.DB)))
+
+var db db_manager.IDb
+err := dbSet.Get(context.Background(), &db, "localhost", 8080)
+
+
+
