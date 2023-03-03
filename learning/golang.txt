@@ -5,5 +5,6 @@ Topics to learn:
 Topic : Status : Remark/Note
 --------------------------------
 context : InProgress : details/context.txt
-wire : InProgress : NA
+wire : Done : NA
 Database connection pool: Not started: NA
+JWT: In progress: https://codewithmukesh.com/blog/jwt-authentication-in-golang/
